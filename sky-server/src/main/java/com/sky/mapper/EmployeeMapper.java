@@ -22,7 +22,7 @@ public interface EmployeeMapper {
     */
     @Insert("Insert into employee (name, username, password, phone, sex, id_number, create_time, update_time, create_user, update_user,status) "+
             "values"+
-            "(#{name},#{username},#{password},#{phone},#{sex},#{id_number},#{create_time,#{update_time},#{create_user},#{update_user},#{status})"
+            "(#{name},#{username},#{password},#{phone},#{sex},#{id_number},#{create_time},#{update_time},#{create_user},#{update_user},#{status})"
     )
     void insert(Employee employee);
 }
