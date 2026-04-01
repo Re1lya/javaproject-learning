@@ -11,3 +11,8 @@ sky:
     access-key-id: ${ALI_OSS_ACCESS_KEY_ID}
     access-key-secret: ${ALI_OSS_ACCESS_KEY_SECRET}
     bucket-name: sky-itcast-1lya
+  redis:
+    host: localhost
+    port: 6379
+    password: 123456
+    database: 10
