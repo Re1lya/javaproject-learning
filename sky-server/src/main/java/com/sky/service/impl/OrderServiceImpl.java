@@ -31,6 +31,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -80,36 +81,39 @@ public class OrderServiceImpl implements OrderService {
     @Value("${sky.baidu.ak}")
     private String ak;
 
+    @Autowired
+    private WebSocketServer webSocketServer;
+
     /**
-     * 鐢ㄦ埛涓嬪崟
+     * 用户下单
      * @param ordersSubmitDTO
      * @return
      */
     @Transactional
     @Override
     public OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO) {
-        //澶勭悊涓氬姟寮傚父锛堝湴鍧€绨夸负绌猴紝璐墿杞︿负绌猴級
+        // 处理业务异常（地址簿为空、购物车为空）
         AddressBook addressBook = addressBookMapper.getById(ordersSubmitDTO.getAddressBookId());
         if(addressBook==null){
-            //鎶涘嚭涓氬姟寮傚父
+            // 抛出业务异常
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
 
         checkOutOfRange(addressBook.getDetail());
 
 
-        //鏌ヨ褰撳墠鐢ㄦ埛鐨勮喘鐗╄溅鏁版嵁
+        // 查询当前用户的购物车数据
         Long userId = BaseContext.getCurrentId();
         ShoppingCart shoppingCart=new ShoppingCart();
         shoppingCart.setUserId(userId);
         List<ShoppingCart> shoppingCartList = shoppingCartMapper.list(shoppingCart);
 
         if(shoppingCartList==null||shoppingCartList.size()==0){
-            //鎶涘嚭涓氬姟寮傚父
+            // 抛出业务异常
             throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
         }
 
-        //鍚戣鍗曡〃鎻掑叆涓€鏉℃暟鎹?
+        // 向订单表插入一条数据
         Orders orders=new Orders();
         BeanUtils.copyProperties(ordersSubmitDTO,orders);
         orders.setOrderTime(LocalDateTime.now());
@@ -125,19 +129,19 @@ public class OrderServiceImpl implements OrderService {
 
 
         List<OrderDetail> orderDetailList=new ArrayList<>();
-        //鍚戣鍗曟槑缁嗚〃鎻掑叆n鏉℃暟鎹?
+        // 向订单明细表插入 n 条数据
         for (ShoppingCart cart : shoppingCartList) {
-            OrderDetail orderDetail=new OrderDetail();//璁㈠崟鏄庣粏瀵硅薄
+            OrderDetail orderDetail=new OrderDetail();// 订单明细对象
             BeanUtils.copyProperties(cart,orderDetail);
-            orderDetail.setOrderId(orders.getId());//璁剧疆褰撳墠璁㈠崟鏄庣粏鍏宠仈鐨勮鍗昳d
+            orderDetail.setOrderId(orders.getId());// 设置当前订单明细关联的订单 id
             orderDetailList.add(orderDetail);
         }
         orderDetailMapper.insertBatch(orderDetailList);
 
-        //涓嬪崟鎴愬姛鍚庢竻绌鸿喘鐗╄溅鏁版嵁
+        // 下单成功后清空购物车数据
         shoppingCartMapper.deleteByUserId(userId);
 
-        //灏佽VO杩斿洖缁撴灉
+        // 封装 VO 返回结果
         OrderSubmitVO orderSubmitVO = OrderSubmitVO.builder()
                 .id(orders.getId())
                 .orderTime(orders.getOrderTime())
@@ -204,6 +208,15 @@ public class OrderServiceImpl implements OrderService {
                 .checkoutTime(LocalDateTime.now())
                 .build();
         orderMapper.update(orders);
+
+        //通过websocket向客户端浏览器推送消息
+        Map map = new HashMap<>();
+        map.put("type",1);
+        map.put("orderId",ordersDB.getId());
+        map.put("content","订单号"+outTradeNo);
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
     }
 
     /**
