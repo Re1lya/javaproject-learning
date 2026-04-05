@@ -61,3 +61,7 @@ sky:
     weChatPayCertFilePath: ${sky.wechat.weChatPayCertFilePath}
     notifyUrl: ${sky.wechat.notifyUrl}
     refundNotifyUrl: ${sky.wechat.refundNotifyUrl}
+  shop:
+    address: 婀栧寳鐪佹姹夊競娲北鍖哄緪涓滃ぇ琛?8鍙?
+  baidu:
+    ak: EFEEFFEFEFE
