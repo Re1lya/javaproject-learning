@@ -4,8 +4,8 @@
 <mapper namespace="com.sky.mapper.OrderMapper">
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        insert into orders (number,status,user_id,address_book_id,order_time,checkout_time,pay_method,pay_status,amount,remark,phone,consignee,estimated_delivery_time,delivery_status,pack_amount,tableware_number,tableware_status)
-        values (#{number},#{status},#{userId},#{addressBookId},#{orderTime},#{checkoutTime},#{payMethod},#{payStatus},#{amount},#{remark},#{phone},#{consignee},#{estimatedDeliveryTime},#{deliveryStatus},#{packAmount},#{tablewareNumber},#{tablewareStatus})
+        insert into orders (number,status,user_id,address_book_id,order_time,checkout_time,pay_method,pay_status,amount,remark,phone,address,consignee,estimated_delivery_time,delivery_status,pack_amount,tableware_number,tableware_status)
+        values (#{number},#{status},#{userId},#{addressBookId},#{orderTime},#{checkoutTime},#{payMethod},#{payStatus},#{amount},#{remark},#{phone},#{address},#{consignee},#{estimatedDeliveryTime},#{deliveryStatus},#{packAmount},#{tablewareNumber},#{tablewareStatus})
     </insert>
 
     <select id="getByNumber" resultType="com.sky.entity.Orders">
@@ -27,7 +27,7 @@
                 and user_id = #{userId}
             </if>
             <if test="endTime!=null">
-                and order_time &gt;= #{endTime}
+                and order_time &lt;= #{endTime}
             </if>
             <if test="status!=null">
                 and status = #{status}

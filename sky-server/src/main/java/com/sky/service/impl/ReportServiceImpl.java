@@ -11,6 +11,7 @@ import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Service
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
@@ -39,13 +41,11 @@ public class ReportServiceImpl implements ReportService {
     public TurnoverReportVO getTurnoverStatistics(LocalDate begin, LocalDate end) {
         //当前集合用于存放范围内的每天的日期
         List<LocalDate> dateList = new ArrayList<>();
-
         dateList.add(begin);
         while(!begin.equals(end)){
             begin=begin.plusDays(1);
             dateList.add(begin);
         }
-        dateList.add(end);
 
         //存放每天的营业额
         List<Double> turnoverList = new ArrayList<>();
@@ -82,15 +82,11 @@ public class ReportServiceImpl implements ReportService {
     public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
         //存放从begin到end之间每天对应的日期
         List<LocalDate> dateList = new ArrayList<>();
-
-
         dateList.add(begin);
-
         while(!begin.equals(end)){
             begin=begin.plusDays(1);
             dateList.add(begin);
         }
-        dateList.add(end);
 
 
 
@@ -136,15 +132,11 @@ public class ReportServiceImpl implements ReportService {
     public OrderReportVO getOrderStatistics(LocalDate begin, LocalDate end) {
         //存放从begin到end之间每天对应的日期
         List<LocalDate> dateList = new ArrayList<>();
-
-
         dateList.add(begin);
-
         while(!begin.equals(end)){
             begin=begin.plusDays(1);
             dateList.add(begin);
         }
-        dateList.add(end);
 
         //存放订单总数
         List<Integer> orderCountList = new ArrayList<>();
