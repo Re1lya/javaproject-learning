@@ -77,5 +77,23 @@ public class ReportController {
         return Result.success(reportService.getOrderStatistics(begin,end));
     }
 
+    /**
+     * 销量排名top10
+     * @param begin
+     * @param end
+     * @return
+     */
+    @GetMapping("/top10")
+    @ApiOperation("销量排名top10")
+    public Result<OrderReportVO> top10(
+            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end){
+
+
+
+        log.info("销量排名top10：{}，{}",begin,end);
+        return Result.success(reportService.getSalesTop10(begin,end));
+    }
+
 
 }
